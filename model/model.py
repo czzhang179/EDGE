@@ -288,9 +288,9 @@ class DanceDecoder(nn.Module):
 
         # input projection
         self.input_projection = nn.Linear(nfeats, latent_dim)
-        self.cond_encoder = nn.Sequential()
+        cond_encoder = []
         for _ in range(2):
-            self.cond_encoder.append(
+            cond_encoder.append(
                 TransformerEncoderLayer(
                     d_model=latent_dim,
                     nhead=num_heads,
@@ -302,6 +302,12 @@ class DanceDecoder(nn.Module):
                 )
             )
         # conditional projection
+        self.cond_encoder = nn.Sequential(*cond_encoder)
+
+        self.x_encoder = nn.Squential(*cond_encoder)
+
+        self.x_conv = nn.Conv1d(512, 512, 7, padding=3)
+        
         self.cond_projection = nn.Linear(cond_feature_dim, latent_dim)
         self.non_attn_cond_projection = nn.Sequential(
             nn.LayerNorm(latent_dim),
